@@ -132,7 +132,7 @@ INTERRUPT int_server( void)
     /////////////////////////////////////////////////////////////////////////////////////////////
     IF_TMR1IF //if (TMR1IF)  // update clock   TX
     {
-        TMR1IF = 0;
+        TMR1IF = 0;  // clean interrupt
         //TmrAllConter++; 
 #ifdef BT_TIMER1
         if (DataB0.Timer1Meausre)
@@ -206,6 +206,9 @@ INTERRUPT int_server( void)
         }
 
 #else // BT timer1
+#ifdef TMR1_JUST_COUNT
+        Timer1Count++;
+#else
         if (++TMR130 == TIMER1_ADJ0)
         {
 #ifdef __PIC24H__
@@ -286,7 +289,8 @@ TMR2_COUNT_DONE:
             }
 #ifdef USE_LCD
             sprintf(&LCDSS[0],"%02d",TMR1SEC);
-#endif
+#endif   // not TMR1_JUST_COUNT
+#endif   // BT timer1
         }
 #endif
     }
