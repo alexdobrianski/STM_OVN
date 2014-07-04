@@ -206,16 +206,17 @@ INTERRUPT int_server( void)
         }
 
 #else // BT timer1
+
 #ifdef TMR1_JUST_COUNT
         Timer1Count++;
 #else
         if (++TMR130 == TIMER1_ADJ0)
         {
-#ifdef __PIC24H__
+  #ifdef __PIC24H__
             TMR2 += TIMER1_ADJUST;//46272; // needs to be adjusted !!!
             if (TMR2 < TIMER1_ADJUST)//46272)
                 goto TMR2_COUNT_DONE;
-#else
+  #else
 
 RE_READ_TMR1:
             work2 = TMR1H;
@@ -242,7 +243,7 @@ RE_READ_TMR1:
             // error will be in 1/30 TMR30 counter
             // needs to make sure from 0-29 is 1130 ticks plus on each TMR130 value
             //   on TMR130 == 30 it is adjust to next sec proper set
-#endif
+  #endif
         }
         else if (TMR130 >TIMER1_ADJ0)
         {
@@ -275,24 +276,24 @@ TMR2_COUNT_DONE:
                                  TMR1YEAR++;
                              } 
                          }
-#ifdef USE_LCD
+  #ifdef USE_LCD
                          sprintf(&LCDDD[0],"%02d",TMR1DAY);
-#endif
+  #endif
                     }
-#ifdef USE_LCD
+  #ifdef USE_LCD
                     sprintf(&LCDHH[0],"%02d",TMR1HOUR);
-#endif
+  #endif
                 }
-#ifdef USE_LCD
+  #ifdef USE_LCD
                 sprintf(&LCDMM[0],"%02d",TMR1MIN);
-#endif
+  #endif
             }
-#ifdef USE_LCD
+  #ifdef USE_LCD
             sprintf(&LCDSS[0],"%02d",TMR1SEC);
+  #endif   
+        }
 #endif   // not TMR1_JUST_COUNT
 #endif   // BT timer1
-        }
-#endif
     }
 
 #ifdef BT_TIMER3

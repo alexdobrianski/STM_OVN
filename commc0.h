@@ -767,53 +767,53 @@ void CsHigh(void);
 //#pragma config PWRTE=off, WDTE=off, FOSC=5, BODEN=off
 //#pragma config |= 0x2f20
 // for debuging by pickit 3
-#pragma config |= 0x27b0
-// 0010 0111 1011 0000
+#pragma config |= 0x2f30
+// 0010 1111 0011 0000
 //   1                = 1 = Code protection off
 //    0               = 0 = CCP1 function on RB3
-//      0             = 1 = In-Circuit Debugger disabled, RB6 and RB7 are general purpose I/O pins
+//      1             = 1 = In-Circuit Debugger disabled, RB6 and RB7 are general purpose I/O pins
 //       11           = 11 = Write protection off
 //         1          = 1 = Code protection off;
-//           1        = 1 = RB3/PGM pin has PGM function, Low-Voltage Programming enabled
+//           0        = 1 = RB3/PGM pin has PGM function, Low-Voltage Programming enabled
 //            0       = 0 = BOR disabled
 //             1      = 0 = RA5/MCLR/VPP pin function is digital I/O, MCLR internally tied to VDD
 //                0   = 0 = PWRT enabled
 //                 0  = 0 = WDT disabled
 //              1   00= FOSC=4 =100 = INTRC oscillator; port I/O function on both RA6/OSC2/CLKO pin and RA7/OSC1/CLKI pin
-// bit 13 CP: Flash Program Memory Code Protection bits
-//            1 = Code protection off; 0 = 0000h to 0FFFh code-protected (all protected)
-// bit 12 CCPMX: CCP1 Pin Selection bit
-//            1 = CCP1 function on RB0; 0 = CCP1 function on RB3
-// bit 11 DEBUG: In-Circuit Debugger Mode bit
-//            1 = In-Circuit Debugger disabled, RB6 and RB7 are general purpose I/O pins
-//            0 = In-Circuit Debugger enabled, RB6 and RB7 are dedicated to the debugger
-// bit 10-9 WRT<1:0>: Flash Program Memory Write Enable bits
-//           11 = Write protection off
-//           10 = 0000h to 00FFh write-protected, 0100h to 0FFFh may be modified by EECON control
-//           01 = 0000h to 07FFh write-protected, 0800h to 0FFFh may be modified by EECON control
-//           00 = 0000h to 0FFFh write-protected
-// bit 8 CPD: Data EE Memory Code Protection bit
-//            1 = Code protection off; 0 = Data EE memory code-protected
-// bit 7 LVP: Low-Voltage Programming Enable bit
-//            1 = RB3/PGM pin has PGM function, Low-Voltage Programming enabled
-//            0 = RB3 is digital I/O, HV on MCLR must be used for programming
-// bit 6 BOREN: Brown-out Reset Enable bit
+//                    bit 13 CP: Flash Program Memory Code Protection bits
+//   1 = Code protection off; 0 = 0000h to 0FFFh code-protected (all protected)
+//                    bit 12 CCPMX: CCP1 Pin Selection bit
+//    1 = CCP1 function on RB0; 0 = CCP1 function on RB3
+//                    bit 11 DEBUG: In-Circuit Debugger Mode bit
+//      1 = In-Circuit Debugger disabled, RB6 and RB7 are general purpose I/O pins
+//      0 = In-Circuit Debugger enabled, RB6 and RB7 are dedicated to the debugger
+//                    bit 10-9 WRT<1:0>: Flash Program Memory Write Enable bits
+//       11 = Write protection off
+//       10 = 0000h to 00FFh write-protected, 0100h to 0FFFh may be modified by EECON control
+//       01 = 0000h to 07FFh write-protected, 0800h to 0FFFh may be modified by EECON control
+//       00 = 0000h to 0FFFh write-protected
+//                    bit 8 CPD: Data EE Memory Code Protection bit
+//         1 = Code protection off; 0 = Data EE memory code-protected
+//                    bit 7 LVP: Low-Voltage Programming Enable bit
+//           1 = RB3/PGM pin has PGM function, Low-Voltage Programming enabled
+//           0 = RB3 is digital I/O, HV on MCLR must be used for programming
+//                    bit 6 BOREN: Brown-out Reset Enable bit
 //            1 = BOR enabled ; 0 = BOR disabled
-// bit 5 MCLRE: RA5/MCLR/VPP Pin Function Select bit
-//            1 = RA5/MCLR/VPP pin function is MCLR ; 0 = RA5/MCLR/VPP pin function is digital I/O, MCLR internally tied to VDD
-// bit 3 PWRTEN: Power-up Timer Enable bit
-//            1 = PWRT disabled; 0 = PWRT enabled
-// bit 2 WDTEN: Watchdog Timer Enable bit
-//            1 = WDT enabled ; 0 = WDT disabled
-// bit 4, 1-0 FOSC<2:0>: Oscillator Selection bits
-//         111 = EXTRC oscillator; CLKO function on RA6/OSC2/CLKO
-//         110 = EXTRC oscillator; port I/O function on RA6/OSC2/CLKO
-//         101 = INTRC oscillator; CLKO function on RA6/OSC2/CLKO pin and port I/O function on RA7/OSC1/CLKI pin
-//         100 = INTRC oscillator; port I/O function on both RA6/OSC2/CLKO pin and RA7/OSC1/CLKI pin
-//         011 = ECIO; port I/O function on RA6/OSC2/CLKO
-//         010 = HS oscillator
-//         001 = XT oscillator
-//         000 = LP oscillator
+//                    bit 5 MCLRE: RA5/MCLR/VPP Pin Function Select bit
+//             1 = RA5/MCLR/VPP pin function is MCLR ; 0 = RA5/MCLR/VPP pin function is digital I/O, MCLR internally tied to VDD
+//                    bit 3 PWRTEN: Power-up Timer Enable bit
+//                1 = PWRT disabled; 0 = PWRT enabled
+//                    bit 2 WDTEN: Watchdog Timer Enable bit
+//                 1 = WDT enabled ; 0 = WDT disabled
+//                    bit 4, 1-0 FOSC<2:0>: Oscillator Selection bits
+//                111 = EXTRC oscillator; CLKO function on RA6/OSC2/CLKO
+//                110 = EXTRC oscillator; port I/O function on RA6/OSC2/CLKO
+//                101 = INTRC oscillator; CLKO function on RA6/OSC2/CLKO pin and port I/O function on RA7/OSC1/CLKI pin
+//                100 = INTRC oscillator; port I/O function on both RA6/OSC2/CLKO pin and RA7/OSC1/CLKI pin
+//                011 = ECIO; port I/O function on RA6/OSC2/CLKO
+//                010 = HS oscillator
+//                001 = XT oscillator
+//                000 = LP oscillator
 #pragma config reg2 = 0
 #endif
 //////////////////////////////////////////////////////////////////////////////////////////

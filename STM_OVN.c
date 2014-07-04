@@ -54,7 +54,7 @@
 // sync clock / timeral  support
 //#define SYNC_CLOCK_TIMER  
 
-
+#define TMR1_JUST_COUNT 1
 
 ////////////////////////////////////////////////////////////////////////
 // disable I2C proc
@@ -154,9 +154,10 @@ void SetTimer1(unsigned long iTime)
 //                       10 =1:4 Prescale value
 //                       01 =1:2 Prescale value
 //                       00 =1:1 Prescale value
-//          1         bit 3 T1OSCEN: Timer1 Oscillator Enable Control bit
+//          0         bit 3 T1OSCEN: Timer1 Oscillator Enable Control bit
 //                       1 = Oscillator is enabled
 //                       0 = Oscillator is shut off (the oscillator inverter is turned off to eliminate power drain)
+//                       must be 0 othervise it uses RA7
 //           0        bit 2 T1SYNC: Timer1 External Clock Input Synchronization Control bit
 //                       if TMR1CS = 1:
 //                            1 = Do not synchronize external clock input
@@ -170,7 +171,7 @@ void SetTimer1(unsigned long iTime)
 //             1      bit 0 TMR1ON: Timer1 On bit
 //                       1 = Enables Timer1
 //                       0 = Stops Timer1
-     T1CON = 0b00111001;
+     T1CON = 0b00110001;
 }
 
 unsigned long DelaySeconds;
@@ -178,8 +179,11 @@ unsigned char StatusTimers;
 unsigned long CountSeconds;
 unsigned char Status;
 //#define MINUTES_20 4577
-#define MINUTES_20 5
-
+#define MINUTES_20 20
+//#define MINUTES_ONE 218
+#define MINUTES_ONE 2
+#define PRESS_BUTTON 3
+#define RELEASE_BUTTON 2
 void main()
 {
     unsigned char bWork;
@@ -279,6 +283,8 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
 
     if (portB.0)          // sw1   100000
         DelaySeconds = 32;
+    else 
+        DelaySeconds = 0;
     if (portB.1)          // sw2   010000
         DelaySeconds += 16;
     if (portB.2)          // sw3   001000
@@ -310,13 +316,13 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
         {
             if (StatusTimers == 1)
             { 
-                DelaySeconds = DelaySeconds * 218;
-                if (Timer1Count > DelaySeconds )
+                DelaySeconds = DelaySeconds * MINUTES_ONE;
+                if (Timer1Count > DelaySeconds )  // passed intial delay in minutes
                 {
                     StatusTimers = 2;
                     Timer1Count = 0;
                     SetTimer1(0);
-                    CountSeconds = MINUTES_20; // 20 minutes
+                    CountSeconds = MINUTES_20; // INIT(include20)+20 minutes
                 } 
             }
             else if (StatusTimers == 2)
@@ -326,7 +332,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     StatusTimers = 3;
                     Timer1Count = 0;
                     SetTimer1(0);
-                    CountSeconds = 1;
+                    CountSeconds = RELEASE_BUTTON;
                     PORTA.0 = 1;
                 } 
             }
@@ -337,7 +343,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     StatusTimers = 4;
                     Timer1Count = 0;
                     SetTimer1(0);
-                    CountSeconds = 1;
+                    CountSeconds = PRESS_BUTTON;
                     PORTA.0 = 0;
                 } 
             }
@@ -348,7 +354,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     StatusTimers = 5;
                     Timer1Count = 0;
                     SetTimer1(0);
-                    CountSeconds = 1;
+                    CountSeconds = RELEASE_BUTTON;
                     PORTA.1 = 1;
                 } 
             }
@@ -359,7 +365,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     StatusTimers = 6;
                     Timer1Count = 0;
                     SetTimer1(0);
-                    CountSeconds = 1;
+                    CountSeconds = PRESS_BUTTON;
                     PORTA.1 = 0;
                 } 
             }
@@ -370,7 +376,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     StatusTimers = 7;
                     Timer1Count = 0;
                     SetTimer1(0);
-                    CountSeconds = 1;
+                    CountSeconds = RELEASE_BUTTON;
                     PORTA.2 = 1;
                 } 
             }
@@ -381,7 +387,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     StatusTimers = 8;
                     Timer1Count = 0;
                     SetTimer1(0);
-                    CountSeconds = 1;
+                    CountSeconds = PRESS_BUTTON;
                     PORTA.2 = 0;
                 } 
             }
@@ -392,7 +398,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     StatusTimers = 9;
                     Timer1Count = 0;
                     SetTimer1(0);
-                    CountSeconds = 1;
+                    CountSeconds = RELEASE_BUTTON;
                     PORTA.3 = 1;
                 } 
             }
@@ -403,7 +409,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     StatusTimers = 10;
                     Timer1Count = 0;
                     SetTimer1(0);
-                    CountSeconds = 1;
+                    CountSeconds = PRESS_BUTTON;
                     PORTA.3 = 0;
                 } 
             }
@@ -414,7 +420,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     StatusTimers = 11;
                     Timer1Count = 0;
                     SetTimer1(0);
-                    CountSeconds = 1;
+                    CountSeconds = RELEASE_BUTTON;
                     PORTA.4 = 1;
                 } 
             }
@@ -422,23 +428,24 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
             {
                 if ( Timer1Count > CountSeconds) // relese 'Enter'
                 {
-                    StatusTimers = 1;
+                    StatusTimers = 2;
                     Timer1Count = 0;
                     SetTimer1(0);
-                    CountSeconds = 1;
+                    CountSeconds = MINUTES_20; // 20 minutes
                     PORTA.4 = 0;
-                    Status++; // 1 == set next 20 minute; 2== set next 20 minutes; 3 == set next 20 minute and set hit 
-                    if (Status == 3) // 1 hour passed
+                    Status++; // 1 == INIT(inc20)+20 now set + 20 minute; 
+                    if (Status == 2) // 1 hour passed (init_inc20+20+20)
                     {
                         StatusTimers = 20;
+                        CountSeconds = PRESS_BUTTON;
                     }
-                             // 4 == set next 20 minutes 
-                    else if (Status == 4)
-                    {
-                        StatusTimers = 1;
+                             // 3 == set next 20 minutes 
+                    else if (Status == 3)
+                    {                   
+                        StatusTimers = 2; // already cooled 20min + set another 20
                     }
-                             // 5 = set next 20 minutes (40 minutes); 6 == set next 20 minutes (60 minutes); 7 == set next 20 minutes (80 minutes) 
-                    else if (Status == 7)
+                             // 4 (40+20) 5 (60+20) 
+                    else if (Status == 6)
                     {
                         StatusTimers = 99;
                     }
@@ -451,7 +458,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     StatusTimers = 21;
                     Timer1Count = 0;
                     SetTimer1(0);
-                    CountSeconds = 1;
+                    CountSeconds = RELEASE_BUTTON;
                     PORTA.6 = 1;
                 } 
             }
@@ -459,10 +466,10 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
             {
                 if ( Timer1Count > CountSeconds) // release 'HIT'
                 {
-                    StatusTimers = 4;  // back to '2' '4' '0'
+                    StatusTimers = 2;  // back to 20 minutes '2' '4' '0'
                     Timer1Count = 0;
                     SetTimer1(0);
-                    CountSeconds = 1;
+                    CountSeconds = MINUTES_20; // 20 minutes
                     PORTA.6 = 0;
                 } 
             }
@@ -534,8 +541,8 @@ void Reset_device(void)
 //              01                      = T1OSC is used for system clock
 //              10                      = Internal RC is used for system clock
 //              11                      = Reserved
-//       0111 1100
-    OSCCON =  0b01111100;
+//       0111 0100
+    OSCCON =  0b01110100;
 
 //      REGISTER 4-1: OSCTUNE: OSCILLATOR TUNING REGISTER (ADDRESS 90h) 
 //      U-0 U-0 R/W-0 R/W-0 R/W-0 R/W-0 R/W-0 R/W-0 
@@ -579,7 +586,7 @@ void Reset_device(void)
 //                            101 1:64
 //                            110 1:128
 //                            111 1:256
-    OPTION_REG = 0b00000111;
+    OPTION_REG = 0b10010111;
 #endif 
 
     //RBIF = 0;
