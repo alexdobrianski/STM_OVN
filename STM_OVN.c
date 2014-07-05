@@ -139,6 +139,11 @@ void SetTimer1(unsigned long iTime)
      // in case of the prescaller = 11 (1:8) it is 1 interrupt in 0.262144 sec
      // in 1 second it is = 3.814697265625 interrupts
      // 20 minutes == 4577.63671875 interrupts
+     // measured 36 min = 2087 sec == 7848 interrupts == 0.2659276249
+     // measured 20 min = 1219 sec == 4577 interrupts == 0.2663316583
+     // measured 20 min = 1217 sec == 4577 interrupts == 0.2658946908
+     // avarage = 0.2659111579
+
      TMR1ON = 0;
      TMR1H = (unsigned char)(iTime>>8);
      TMR1L = (unsigned char)(iTime&0xff);
@@ -171,6 +176,7 @@ void SetTimer1(unsigned long iTime)
 //             1      bit 0 TMR1ON: Timer1 On bit
 //                       1 = Enables Timer1
 //                       0 = Stops Timer1
+//      00110001
      T1CON = 0b00110001;
 }
 
@@ -179,11 +185,21 @@ unsigned char StatusTimers;
 unsigned long CountSeconds;
 unsigned char Status;
 //#define MINUTES_20 4577
-#define MINUTES_20 20
-//#define MINUTES_ONE 218
-#define MINUTES_ONE 2
+//#define MINUTES_20 20
+#define MINUTES_22 4964
+
+#define MINUTES_ONE 218
+//#define MINUTES_ONE 2
+
 #define PRESS_BUTTON 3
 #define RELEASE_BUTTON 2
+
+#define BUTTON_HOLD PORTA.0 
+#define BUTTON_2 PORTA.1
+#define BUTTON_4 PORTA.2
+#define BUTTON_0 PORTA.3
+#define BUTTON_ENTER PORTA.4
+#define BUTTON_HIT PORTA.6
 void main()
 {
     unsigned char bWork;
@@ -282,17 +298,17 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
     //  RA7  = \1min\ & start
 
     if (portB.0)          // sw1   100000
-        DelaySeconds = 32;
+        DelaySeconds = 7220;//32;
     else 
         DelaySeconds = 0;
     if (portB.1)          // sw2   010000
-        DelaySeconds += 16;
+        DelaySeconds += 3610;//16;
     if (portB.2)          // sw3   001000
-        DelaySeconds += 8;
+        DelaySeconds += 1805;//8;
     if (portB.4)          // sw4   000100
-        DelaySeconds += 4;
+        DelaySeconds += 902;//4;
     if (portB.5)          // sw5   000010
-        DelaySeconds += 2;
+        DelaySeconds += 451;//2;
 
     if (StatusTimers ==0) // intializing of the controller
     {
@@ -316,13 +332,13 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
         {
             if (StatusTimers == 1)
             { 
-                DelaySeconds = DelaySeconds * MINUTES_ONE;
+                //DelaySeconds = DelaySeconds * MINUTES_ONE;
                 if (Timer1Count > DelaySeconds )  // passed intial delay in minutes
                 {
                     StatusTimers = 2;
                     Timer1Count = 0;
                     SetTimer1(0);
-                    CountSeconds = MINUTES_20; // INIT(include20)+20 minutes
+                    CountSeconds = PRESS_BUTTON; // INIT passed
                 } 
             }
             else if (StatusTimers == 2)
@@ -333,7 +349,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     Timer1Count = 0;
                     SetTimer1(0);
                     CountSeconds = RELEASE_BUTTON;
-                    PORTA.0 = 1;
+                    BUTTON_HOLD = 1;
                 } 
             }
             else if (StatusTimers == 3)
@@ -344,7 +360,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     Timer1Count = 0;
                     SetTimer1(0);
                     CountSeconds = PRESS_BUTTON;
-                    PORTA.0 = 0;
+                    BUTTON_HOLD = 0;
                 } 
             }
             else if (StatusTimers == 4)
@@ -355,7 +371,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     Timer1Count = 0;
                     SetTimer1(0);
                     CountSeconds = RELEASE_BUTTON;
-                    PORTA.1 = 1;
+                    BUTTON_2 = 1;
                 } 
             }
             else if (StatusTimers == 5)
@@ -366,7 +382,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     Timer1Count = 0;
                     SetTimer1(0);
                     CountSeconds = PRESS_BUTTON;
-                    PORTA.1 = 0;
+                    BUTTON_2 = 0;
                 } 
             }
             else if (StatusTimers == 6)
@@ -377,7 +393,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     Timer1Count = 0;
                     SetTimer1(0);
                     CountSeconds = RELEASE_BUTTON;
-                    PORTA.2 = 1;
+                    BUTTON_4 = 1;
                 } 
             }
             else if (StatusTimers == 7)
@@ -388,7 +404,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     Timer1Count = 0;
                     SetTimer1(0);
                     CountSeconds = PRESS_BUTTON;
-                    PORTA.2 = 0;
+                   BUTTON_4 = 0;
                 } 
             }
             else if (StatusTimers == 8)
@@ -399,7 +415,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     Timer1Count = 0;
                     SetTimer1(0);
                     CountSeconds = RELEASE_BUTTON;
-                    PORTA.3 = 1;
+                    BUTTON_0 = 1;
                 } 
             }
             else if (StatusTimers == 9)
@@ -410,7 +426,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     Timer1Count = 0;
                     SetTimer1(0);
                     CountSeconds = PRESS_BUTTON;
-                    PORTA.3 = 0;
+                    BUTTON_0 = 0;
                 } 
             }
             else if (StatusTimers == 10)
@@ -421,7 +437,7 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     Timer1Count = 0;
                     SetTimer1(0);
                     CountSeconds = RELEASE_BUTTON;
-                    PORTA.4 = 1;
+                    BUTTON_ENTER = 1;
                 } 
             }
             else if (StatusTimers == 11)
@@ -431,21 +447,21 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     StatusTimers = 2;
                     Timer1Count = 0;
                     SetTimer1(0);
-                    CountSeconds = MINUTES_20; // 20 minutes
-                    PORTA.4 = 0;
+                    CountSeconds = MINUTES_22; // 22 minutes
+                    BUTTON_ENTER = 0;
                     Status++; // 1 == INIT(inc20)+20 now set + 20 minute; 
-                    if (Status == 2) // 1 hour passed (init_inc20+20+20)
+                    if (Status == 3) // 1 hour passed (init_inc20+20+20)
                     {
                         StatusTimers = 20;
                         CountSeconds = PRESS_BUTTON;
                     }
                              // 3 == set next 20 minutes 
-                    else if (Status == 3)
+                    else if (Status == 4)
                     {                   
                         StatusTimers = 2; // already cooled 20min + set another 20
                     }
                              // 4 (40+20) 5 (60+20) 
-                    else if (Status == 6)
+                    else if (Status == 7)
                     {
                         StatusTimers = 99;
                     }
@@ -459,18 +475,62 @@ unsigned char CallBkMain(void) // 0 = do continue; 1 = process queues
                     Timer1Count = 0;
                     SetTimer1(0);
                     CountSeconds = RELEASE_BUTTON;
-                    PORTA.6 = 1;
+                    BUTTON_HIT = 1;
                 } 
             }
             else if (StatusTimers == 21)
             {
                 if ( Timer1Count > CountSeconds) // release 'HIT'
                 {
-                    StatusTimers = 2;  // back to 20 minutes '2' '4' '0'
+                    StatusTimers = 22;
                     Timer1Count = 0;
                     SetTimer1(0);
-                    CountSeconds = MINUTES_20; // 20 minutes
-                    PORTA.6 = 0;
+                    CountSeconds = PRESS_BUTTON;
+                    BUTTON_HIT = 0;
+                } 
+            }
+            else if (StatusTimers == 22)
+            {
+                if ( Timer1Count > CountSeconds) // press '2'
+                {
+                    StatusTimers = 23;
+                    Timer1Count = 0;
+                    SetTimer1(0);
+                    CountSeconds = RELEASE_BUTTON;
+                    BUTTON_2 = 1;
+                } 
+            }
+            else if (StatusTimers == 23)
+            {
+                if ( Timer1Count > CountSeconds) // relese '2'
+                {
+                    StatusTimers = 24;
+                    Timer1Count = 0;
+                    SetTimer1(0);
+                    CountSeconds = PRESS_BUTTON;
+                    BUTTON_2 = 0;
+                } 
+            }
+            else if (StatusTimers == 24)
+            {
+                if ( Timer1Count > CountSeconds) // press '0'
+                {
+                    StatusTimers = 25;
+                    Timer1Count = 0;
+                    SetTimer1(0);
+                    CountSeconds = RELEASE_BUTTON;
+                    BUTTON_0 = 1;
+                } 
+            }
+            else if (StatusTimers == 25)
+            {
+                if ( Timer1Count > CountSeconds) // relese '0'
+                {
+                    StatusTimers = 8; // to '0'
+                    Timer1Count = 0;
+                    SetTimer1(0);
+                    CountSeconds = PRESS_BUTTON;
+                    BUTTON_0 = 0;
                 } 
             }
             else if (StatusTimers == 99)
